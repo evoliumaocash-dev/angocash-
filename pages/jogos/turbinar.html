@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Turbinar Nível 1 - Sou Angolano</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Estilos idênticos ao jogo.html para manter consistência */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { height: 100vh; display: flex; justify-content: center; align-items: center; background: #111; font-family: 'Nunito Sans', sans-serif; overflow: hidden; }
+    .phone { width: min(390px, 100vw); height: min(844px, 100vh); position: relative; background: #cc0000 url('../../assets/img/bg.jpg') center/cover; display: flex; flex-direction: column; z-index: 1; }
+    .phone::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, rgba(180,0,0,0.1) 0%, rgba(0,0,0,0.8) 100%); z-index: -1; }
+    .header { padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 2; }
+    .balance-box { background: rgba(255, 255, 255, 0.15); padding: 8px 15px; border-radius: 12px; backdrop-filter: blur(5px); font-weight: 800; border: 1px solid rgba(255, 255, 255, 0.2); color: #facc15; }
+    .game-content { flex: 1; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; z-index: 2; }
+    .question-card { background: white; border-radius: 25px; padding: 30px 20px; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+    .question-text { color: #333; font-size: 1.1rem; font-weight: 800; margin-bottom: 25px; }
+    .options-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+    .opt-btn { padding: 15px; border: 2px solid #eee; border-radius: 15px; background: #f9f9f9; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    .correct { background: #22c55e !important; color: white; border-color: #16a34a; }
+    .wrong { background: #ef4444 !important; color: white; border-color: #b91c1c; }
+    #end-modal { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 10; justify-content: center; align-items: center; padding: 20px; }
+    .modal-content { background: white; padding: 30px; border-radius: 25px; text-align: center; width: 100%; }
+    .modal-btn { display: block; width: 100%; padding: 15px; margin-top: 15px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; }
+    .btn-withdraw { background: #22c55e; color: white; }
+    .btn-boost { background: #facc15; color: #000; }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="header">
+    <button onclick="location.href='../../home.html'" style="background:none; border:none; color:white; font-weight:900;">✖ CANCELAR</button>
+    <div class="balance-box">🔥 <span id="balance-display">0,00</span> Kz</div>
+  </div>
+
+  <div class="game-content">
+    <div style="color: #facc15; font-weight: 900; margin-bottom: 10px;">MODO TURBO: NÍVEL 1</div>
+    <div class="question-card">
+      <p id="question-count" style="color: #cc0000; font-weight: 800; font-size: 0.8rem; margin-bottom: 10px;"></p>
+      <p id="question-text" class="question-text">Carregando...</p>
+      <div class="options-grid" id="options-container"></div>
+    </div>
+  </div>
+
+  <div id="end-modal">
+    <div class="modal-content">
+      <h2 style="color: #333;">Nível 1 Concluído! 🚀</h2>
+      <p id="final-balance-text" style="font-size: 1.5rem; font-weight: 900; color: #cc0000; margin: 15px 0;"></p>
+      <p style="color: #666; margin-bottom: 20px;">O seu saldo está a crescer rápido! Deseja continuar a turbinar para o Nível Máximo?</p>
+      <button class="modal-btn btn-boost" onclick="location.href='turbinar2.html'">TURBINAR PARA NÍVEL 2</button>
+      <button class="modal-btn btn-withdraw" onclick="location.href='../../sacar.html'">PARAR E SACAR</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const FLOW_CONFIG = {
+    "jogo.html": { level: 1, next: "turbinar.html" },
+    "turbinar.html": { level: 2, next: "turbinar2.html" },
+    "turbinar2.html": { level: 3, next: "../../sacar.html" }
+  };
+
+  const currentPage = window.location.pathname.split("/").pop() || 'turbinar.html';
+  const pageConfig = FLOW_CONFIG[currentPage];
+  const userLevel = parseInt(localStorage.getItem('game_progress')) || 1;
+
+  // 1. Impede pular etapas: se tenta entrar sem ter concluído o nível anterior
+  if (pageConfig && pageConfig.level > userLevel) {
+    alert("Conclua a fase anterior primeiro!");
+    window.location.replace("home.html");
+  }
+
+  // 2. Impede voltar: se já passou desta fase, redireciona para frente
+  if (pageConfig && userLevel > pageConfig.level) {
+    window.location.replace(pageConfig.next);
+  }
+
+  // 3. Bloqueia botão "Voltar" do navegador
+  history.pushState(null, null, location.href);
+  window.onpopstate = function () { history.go(1); };
+
+  // Função pra avançar de nível (não redireciona — só libera)
+  function completarNivel() {
+    if (!pageConfig) return;
+    const proximoLevel = pageConfig.level + 1;
+    localStorage.setItem('game_progress', proximoLevel.toString());
+  }
+
+  const quizData = [
+    { q: "Qual é a maior queda d'água de Angola?", a: ["Quedas de Kalandula", "Quedas do Ruacaná", "Quedas do Musselelo"], c: 0 },
+    { q: "Em que província localiza-se a Serra da Leba?", a: ["Namibe", "Huíla", "Benguela"], c: 1 },
+    { q: "Qual é o principal ritmo musical de Angola conhecido mundialmente?", a: ["Kizomba", "Samba", "Mambo"], c: 0 },
+    { q: "Qual o nome do festival cultural que ocorre no Sumbe?", a: ["FestiSumbe", "Unitel Festa", "Angola Music Awards"], c: 0 },
+    { q: "O que significa 'Muxima' em Kimbundu?", a: ["Amor", "Coração", "Paz"], c: 1 },
+    { q: "Qual destas cidades é conhecida como a 'Cidade das Acácias Rubras'?", a: ["Lobito", "Benguela", "Huambo"], c: 1 },
+    { q: "Quem escreveu 'Sagrada Esperança'?", a: ["Pepetela", "Agostinho Neto", "José Eduardo Agualusa"], c: 1 },
+    { q: "Qual é o porto mais importante de Angola?", a: ["Porto do Lobito", "Porto de Luanda", "Porto do Namibe"], c: 1 },
+    { q: "Qual é o nome da barragem no rio Kwanza que é uma das maiores?", a: ["Capanda", "Lauca", "Cambambe"], c: 1 },
+    { q: "Em que mês se celebra o Dia da Independência?", a: ["Setembro", "Novembro", "Janeiro"], c: 1 }
+  ];
+
+  let currentQuestion = 0;
+  let userBalance = parseFloat(localStorage.getItem('user_balance')) || 0;
+
+  function updateDisplay() {
+    document.getElementById('balance-display').textContent = userBalance.toLocaleString('pt-AO', { minimumFractionDigits: 2 });
+    localStorage.setItem('user_balance', userBalance);
+  }
+
+  function loadQuestion() {
+    const data = quizData[currentQuestion];
+    document.getElementById('question-count').textContent = `TURBO 1: PERGUNTA ${currentQuestion + 1} DE 10`;
+    document.getElementById('question-text').textContent = data.q;
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+    data.a.forEach((opt, index) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = opt;
+      btn.onclick = () => checkAnswer(index, btn);
+      container.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(index, btn) {
+    const correctIndex = quizData[currentQuestion].c;
+    document.querySelectorAll('.opt-btn').forEach(b => b.style.pointerEvents = 'none');
+    if (index === correctIndex) {
+      btn.classList.add('correct');
+      userBalance += 10000.00; // Vale mais no turbo
+      updateDisplay();
+    } else {
+      btn.classList.add('wrong');
+      document.querySelectorAll('.opt-btn')[correctIndex].classList.add('correct');
+    }
+    setTimeout(() => {
+      currentQuestion++;
+      if (currentQuestion < quizData.length) loadQuestion();
+      else showEndModal();
+    }, 1200);
+  }
+
+  function showEndModal() {
+    completarNivel(); // libera o próximo nível antes de mostrar o modal
+    document.getElementById('final-balance-text').textContent = userBalance.toLocaleString('pt-AO') + " Kzs";
+    document.getElementById('end-modal').style.display = 'flex';
+  }
+
+  function action(type) {
+    if (type === 'sacar') {
+      window.location.href = '../../sacar.html';
+    } else {
+      // Botão "Turbinar Mais" leva pro turbinar2
+      window.location.href = 'turbinar2.html';
+    }
+  }
+
+  updateDisplay();
+  loadQuestion();
+</script></body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recepção de Valores – Sou Angolano</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; overflow: hidden; background: #111; }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Nunito Sans', sans-serif;
+    }
+
+    .phone {
+      width: min(390px, 100vw);
+      height: min(844px, 100vh);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background-color: #cc0000;
+    }
+
+    /* Background Identidade Visual */
+    .phone::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('assets/img/bg.jpg');
+      background-size: cover;
+      background-position: center;
+      z-index: 0;
+    }
+
+    .phone::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 40%, rgba(180,0,0,0.1) 0%, rgba(70,0,0,0.65) 100%);
+      z-index: 1;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 18px 10px;
+    }
+
+    .back-btn {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .back-btn svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 3; }
+
+    .topbar-title {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Header Decorativo ── */
+    .hero-strip {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      padding: 10px 20px 20px;
+      gap: 15px;
+    }
+
+    .hero-strip img {
+      width: 65px;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .hero-text {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 1.2rem;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    /* ── Card Principal ── */
+    .card {
+      position: relative;
+      z-index: 2;
+      margin: 0 16px 20px;
+      background: #fff;
+      border-radius: 30px;
+      padding: 25px 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* ── Campo de Nome ── */
+    .field-group { display: flex; flex-direction: column; gap: 8px; }
+
+    .field-group label {
+      font-weight: 800;
+      font-size: 0.75rem;
+      color: #888;
+      text-transform: uppercase;
+      padding-left: 5px;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid #f0f0f0;
+      border-radius: 18px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      background: #fafafa;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input-wrap input:focus {
+      border-color: #cc0000;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(204,0,0,0.05);
+    }
+
+    .input-wrap input.invalid { border-color: #ff4d4d; background: #fff5f5; }
+    .error-msg {
+      color: #cc0000;
+      font-size: 0.72rem;
+      font-weight: 800;
+      margin-top: 6px;
+      padding-left: 5px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    /* ── Opções de Método ── */
+    .option-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px;
+      border: 3px solid #f4f4f4;
+      border-radius: 20px;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .option-card.selected {
+      border-color: #cc0000;
+      background: #fff9f9;
+      transform: scale(1.02);
+    }
+
+    .option-info { display: flex; align-items: center; gap: 15px; }
+
+    .option-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      background: #f0f0f0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .option-card.selected .option-icon { background: #ffebeb; }
+
+    .option-name { font-weight: 900; font-size: 1rem; color: #333; display: block; }
+    .option-sub { font-size: 0.75rem; color: #aaa; font-weight: 700; }
+
+    /* Radio Indicator */
+    .radio-circle {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 3px solid #eee;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .option-card.selected .radio-circle { border-color: #cc0000; }
+    .radio-circle::after {
+      content: ''; width: 12px; height: 12px; border-radius: 50%;
+      background: #cc0000; transform: scale(0); transition: 0.2s;
+    }
+    .option-card.selected .radio-circle::after { transform: scale(1); }
+
+    /* ── Botão 3D Dourado ── */
+    .btn-submit {
+      width: 100%;
+      padding: 22px;
+      border: none;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #f5c842 0%, #e8a820 35%, #d4861a 65%, #c07010 100%);
+      color: #7a2800;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #8a4a00, 0 10px 20px rgba(0,0,0,0.3);
+      transition: all 0.1s;
+      display: none;
+      margin-top: auto;
+    }
+
+    .btn-submit:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #8a4a00;
+    }
+
+    .btn-submit.visible { display: block; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+    @keyframes popIn {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .footer {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.7rem;
+      padding-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- Top bar -->
+  <div class="topbar">
+    <button class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <span class="topbar-title">Recepção de Valores</span>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero-strip">
+    <img src="../../assets/img/mascote_3.png" alt="Mascote" />
+    <span class="hero-text">Escolhe como<br>receber o dinheiro</span>
+  </div>
+
+  <!-- Card -->
+  <div class="card">
+    <!-- Nome -->
+    <div class="field-group">
+      <label>Nome do Beneficiário</label>
+      <div class="input-wrap">
+        <input type="text" placeholder="Nome completo" id="beneficiario">
+        <span class="error-msg" id="errNome">&#9888; Introduza o nome completo (mínimo 2 palavras)</span>
+      </div>
+    </div>
+
+    <label style="font-weight: 800; font-size: 0.75rem; color: #888; text-transform: uppercase;">Método de Saque</label>
+
+    <!-- Banco -->
+    <div class="option-card" id="opcaoBanco" onclick="selectOption('banco')">
+      <div class="option-info">
+        <div class="option-icon">🏛️</div>
+        <div>
+          <span class="option-name">Banco (IBAN)</span>
+          <span class="option-sub">Depósito Interbancário</span>
+        </div>
+      </div>
+      <div class="radio-circle"></div>
+    </div>
+
+    <!-- Multicaixa -->
+    <div class="option-card" id="opcaoMulticaixa" onclick="selectOption('multicaixa')">
+      <div class="option-info">
+        <div class="option-icon">📱</div>
+        <div>
+          <span class="option-name">Multicaixa Express</span>
+          <span class="option-sub">Levantamento sem cartão</span>
+        </div>
+      </div>
+      <div class="radio-circle"></div>
+    </div>
+
+    <!-- Submit Buttons -->
+    <button class="btn-submit" id="btnBanco" onclick="continuar('rede-bancaria.html')">
+      Continuar para IBAN
+    </button>
+
+    <button class="btn-submit" id="btnMulticaixa" onclick="continuar('finalizar-dados-express.html')">
+      Continuar para Express
+    </button>
+  </div>
+
+  <p class="footer">Segurança Garantida &bull; Sou Angolano</p>
+</div>
+
+<script>
+  const nomeInput = document.getElementById('beneficiario');
+  const errNome = document.getElementById('errNome');
+
+  nomeInput.addEventListener('input', function () {
+    this.classList.remove('invalid');
+    errNome.classList.remove('show');
+  });
+
+  function validarNome(val) {
+    const trimmed = val.trim();
+    // Mínimo 2 palavras, só letras e espaços, mínimo 5 caracteres
+    return trimmed.length >= 5 && /^[A-Za-zÀ-ÿ\s]+$/.test(trimmed) && trimmed.split(/\s+/).length >= 2;
+  }
+
+  function selectOption(type) {
+    document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.btn-submit').forEach(b => b.classList.remove('visible'));
+
+    if (type === 'banco') {
+      document.getElementById('opcaoBanco').classList.add('selected');
+      document.getElementById('btnBanco').classList.add('visible');
+    } else {
+      document.getElementById('opcaoMulticaixa').classList.add('selected');
+      document.getElementById('btnMulticaixa').classList.add('visible');
+    }
+  }
+
+  function continuar(destino) {
+    const nome = nomeInput.value.trim();
+    if (!validarNome(nome)) {
+      nomeInput.classList.add('invalid');
+      errNome.classList.add('show');
+      nomeInput.focus();
+      return;
+    }
+    window.location.href = destino;
+  }
+</script>
+
+</body>
+</html>
